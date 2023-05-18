@@ -14,7 +14,7 @@ router.get("/", (req, res)=>{
 router.post("/createProduct", (req, res)=>{
     //body
     let pr=req.body
-    pr.id= uuid4( )
+    pr.id= uuid4()
     console.log(pr);
     products.push(pr)
     res.json({data:pr, message:"Producto guardado correctamente"})
