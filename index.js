@@ -3,24 +3,53 @@ const app = express()
 const PORT = 8080
 const routesProducts = require ("./routes/products")
 const routesCarts = require ("./routes/carts")
+const routerUsers= require ("./routes/users")
 const handlebars = require ("express-handlebars")
+const http = require ("http");
+const server = http.createServer(app);
 
+//Socket
+const { Server } = require("socket.io");
+const io = new Server(server);
+
+//VIEWS
 app.engine("handlebars", handlebars.engine())
-app.set("views", __dirname+"/views")
 app.set("view engine", "handlebars")
+app.set("views", __dirname+"/views")
+
+
+//MAIN
 app.use(express.json()) 
 app.use(express.urlencoded({extended:true}))
 
-app.use( function(req, res, next){
-    console.log("Time: ", Date.now());
-    next()
+
+
+//PUBLIC
+app.use(express.static(__dirname+"/public"))
+
+let messages = [
+    {author: "danilo", text:"hola coder"}
+
+]
+
+
+//Inicializar el Socket en el servidor
+io.on("connection", (socket)=>{
+    console.log("User Conectado");
+    
+    socket.emit("messages", messages)
+    socket.on("new-message", (data)=>{
+        console.log(data);
+        messages.push(data)
+        io.sockets.emit("messages", messages)
+    })
 })
 
-
-app.use("/static", express.static(__dirname + "/public"))
-
+//ROUTES
 app.use("/products",routesProducts)
 app.use("/carts",routesCarts) 
+app.use("/users", routerUsers)
+
 
 let users =[
     {
@@ -86,7 +115,7 @@ app.get("/testHand", ( req, res )=>{
     let user = {
         name: "Danilo",
         lastName: "Laura" ,
-        role: "user"
+        role: "admin"
     }
     res.render("users",{
         user:user,
@@ -98,7 +127,7 @@ app.get("/testHand", ( req, res )=>{
 
 
 
-app.listen(PORT, ()=>{
+server.listen(PORT, ()=>{
     console.log("server run on port", PORT);
 });
 

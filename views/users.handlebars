@@ -11,3 +11,23 @@
     <p>No tenes permisos para ver el contenido</p>
     {{/if}}    
 </div>  
+<div>
+    <main class="container ">
+         <p class="title">PCPRO componentes y celulares  </p>
+        <form onsubmit="return addMensaje()">
+            <div>
+                <input type="text" id="username" placeholder="Tu nombre">
+            </div>
+            <div>
+                <input type="text" id="texto" placeholder="Mensaje">
+            </div>
+            <div>
+                <input type="submit" value="Enviar">
+            </div>
+        </form>
+    </main>
+    <div id="caja"></div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/index.js"></script>
