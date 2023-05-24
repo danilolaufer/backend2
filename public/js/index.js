@@ -6,7 +6,7 @@ socket.on("messages", (data)=>{
 
 function render(data) {
     const html = data.map(elem =>{ 
-        return (
+        return(
             `<div class="container">
             <strong> ${elem.author} </strong>:
             <em> ${elem.text} </em>
@@ -28,3 +28,4 @@ function addMensaje(e){
     console.log(mensaje);
     return false
 }
+//okey
