@@ -28,7 +28,7 @@ app.use(express.urlencoded({extended:true}))
 //PUBLIC
 app.use(express.static(__dirname+"/public"))
 
-let messages = []
+let messages = []  //si
 
 
 //Inicializar el Socket en el servidor
