@@ -33,13 +33,17 @@ let messages = []  //si
 
 //Inicializar el Socket en el servidor
 io.on("connection", (socket)=>{
-    console.log("User Conectado");
+    console.log("Nuevo cliente conectado");
     
     socket.emit("messages", messages)
     socket.on("new-message", (data)=>{
-        console.log(data);
         messages.push(data)
+        io.emit("messageLogs", messages)
         io.sockets.emit("messages", messages)
+    })
+    socket.on("message", data =>{
+        messages.push(data)
+        io.emit("messageLogs", messages)
     })
 })
 
