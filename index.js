@@ -1,10 +1,11 @@
 const express = require("express")
 const app = express()
-const PORT = 8080
+const PORT = 8080 || process.env.PORT
 const routesProducts = require ("./routes/products")
 const routesCarts = require ("./routes/carts")
 const routerUsers= require ("./routes/users")
 const handlebars = require ("express-handlebars")
+//Http import
 const http = require ("http");
 const server = http.createServer(app);
 
@@ -27,10 +28,7 @@ app.use(express.urlencoded({extended:true}))
 //PUBLIC
 app.use(express.static(__dirname+"/public"))
 
-let messages = [
-    {author: "danilo", text:"hola coder"}
-
-]
+let messages = []
 
 
 //Inicializar el Socket en el servidor

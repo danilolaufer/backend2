@@ -14,20 +14,25 @@
 <div>
     <main class="container ">
          <p class="title">PCPRO componentes y celulares  </p>
+         <h1 class="title">CHAT </h1>
+         <img src="/img/RTR2QKGR-1.jpg"  class="img" alt="">
+         <div id="caja"></div>
         <form onsubmit="return addMensaje()">
-            <div>
-                <input type="text" id="username" placeholder="Tu nombre">
+            <div class="mb-3">
+                <label for="username" class="form-label">Nombre</label>
+                <input type="text" class="form-control" id="username" placeholder="Tu nombre...">
             </div>
-            <div>
-                <input type="text" id="texto" placeholder="Mensaje">
+            <div class="mb-3">
+                <label for="texto" class="form-label">Mensaje</label>
+                <textarea  id="texto" class="form-control" rows="5" placeholder="mensaje"></textarea>
             </div>
-            <div>
-                <input type="submit" value="Enviar">
-            </div>
+            <input type="submit" value="enviar" class="btn btn-primary"></input>
         </form>
     </main>
-    <div id="caja"></div>
-</div>
+    <footer>
+        <p class="anuncio">seguime en mis redes sociales</p>
+    </footer>
+    </div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="/js/index.js"></script>

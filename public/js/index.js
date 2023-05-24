@@ -6,12 +6,12 @@ socket.on("messages", (data)=>{
 
 function render(data) {
     const html = data.map(elem =>{ 
-        return (`
-        <div class="container">
-            <strong> ${elem.author} </strong>
+        return (
+            `<div class="container">
+            <strong> ${elem.author} </strong>:
             <em> ${elem.text} </em>
-        </div>
-        `)
+        </div>` 
+        )
     }).join(" ")
     document.getElementById("caja").innerHTML= html
     
@@ -23,7 +23,8 @@ function addMensaje(e){
         author: document.getElementById("username").value, 
         text: document.getElementById("texto").value
     }
+    
+    socket.emit("new-message", mensaje)
     console.log(mensaje);
-    socket.emit("new-messages", mensaje)
     return false
 }
