@@ -1,10 +1,27 @@
 const express = require("express")
 const app = express()
+const cartsRouter = require("./routes/cart.route");
+const productRouter = require("./routes/product.route");
 const PORT = 8080 || process.env.PORT
 const routesProducts = require ("./routes/products")
 const routesCarts = require ("./routes/carts")
-const routerUsers= require ("./routes/users")
-const handlebars = require ("express-handlebars")
+const path = require("path");
+const indexRouter = require("./routes/index.router.js");
+const  realTimeRouter = require("./routes/realTimeProducts.views.js");
+const  homeRouter = require ("./routes/home.views.js");
+const routerUsers= require("./routes/users")
+const handlebars = require("express-handlebars")
+const multer = require("multer");
+const upload = multer({dest: "uploads/"})
+//Server, ProductManager
+const ProductManager = require ("./controllers/productManager.js");
+const productManager = new ProductManager("db/products.json")
+
+//API
+app.use("/api", indexRouter)
+app.use('/', homeRouter)
+app.use('/realtimeproducts', realTimeRouter)
+
 //Http import
 const http = require ("http");
 const server = http.createServer(app);
@@ -13,16 +30,23 @@ const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
 
-//VIEWS
 app.engine("handlebars", handlebars.engine())
 app.set("view engine", "handlebars")
 app.set("views", __dirname+"/views")
+
 
 
 //MAIN
 app.use(express.json()) 
 app.use(express.urlencoded({extended:true}))
 
+//img
+app.post("/upload", upload.single("image"), (req, res) => {
+    const file = req.file;
+    // Aquí puedes realizar acciones adicionales con el archivo, como guardarlo en una base de datos o procesarlo
+    // y luego enviar la respuesta adecuada al cliente
+    res.send("Imagen recibida correctamente");
+  });
 
 
 //PUBLIC
@@ -45,12 +69,18 @@ io.on("connection", (socket)=>{
         messages.push(data)
         io.emit("messageLogs", messages)
     })
+    socket.on('addProduct', async (data) => {
+        const added = await productManager.addProduct(data)
+        socketServer.emit('allProducts', await productManager.getProducts())
+    })
 })
 
 //ROUTES
-app.use("/products",routesProducts)
-app.use("/carts",routesCarts) 
+// app.use("/products",routesProducts)
+// app.use("/carts",routesCarts) 
 app.use("/users", routerUsers)
+app.use("/carts", cartsRouter);
+app.use("/products", productRouter);
 
 
 let users =[
@@ -96,7 +126,12 @@ let users =[
 
 app.get("/", ( req, res )=>{
     res.render("index", users[Math.floor(Math.random() * users.length)])
+
 })
+app.get("*", (req, res) => {
+    res.status(404).json({ status: "error", msg: "Path not found" });
+});
+
 
 let arrayPr = [
     {
@@ -130,7 +165,7 @@ app.get("/testHand", ( req, res )=>{
 
 
 server.listen(PORT, ()=>{
-    console.log("server run on port", PORT);
+    console.log("funka o no funka", PORT);
 });
 
 
