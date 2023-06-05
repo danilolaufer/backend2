@@ -1,5 +1,5 @@
 const { Router } =require ('express')
-const  ProductManager  = require ('../controllers/productManager.js')
+const  ProductManager  = require ("../controllers/productManager")
  const productManager = new ProductManager("/db/products.json")
 const homeRouter = Router()
 

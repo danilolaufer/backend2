@@ -1,67 +1,56 @@
-let socket = io()
-socket.on("messages", (data)=>{
-    render(data)
-})
+const socket = io();
+const formProduct = document.getElementById('formProducts')
+const title = document.getElementById('title');
+const description = document.getElementById('description');
+const code = document.getElementById('code');
+const price = document.getElementById('price');
+const stock = document.getElementById('stock');
+const category = document.getElementById('category');
+const thumbnails = document.getElementById('thumbnails');
+const tableProducts = document.getElementById('listaProd')
 
-function render(data) {
-    const html = data.map(elem =>{ 
-        return(
-            `<div class="container">
-            <strong> ${elem.author} </strong>:
-            <em> ${elem.text} </em>
-        </div>` 
+
+socket.on('allProducts', async (data) => {
+
+ const html=  await data?.map( ( prod )=> {
+        return (
+            ` <tr>
+
+                <td>${prod.title}</td>
+                <td>${prod.description}</td>
+                <td>$ ${prod.price}</td>
+                <td>${prod.stock}</td>
+                <td>${prod.category}</td>
+                <td>${prod.code}</td>
+                <td><img src=${prod.thumbnails} alt="" width="50%" /> </td>
+            </tr>
+            `
+           
         )
-    }).join(" ")
-    document.getElementById("caja").innerHTML= html
+       
     
-}
+});
 
+  tableProducts.innerHTML= html
 
-function addMensaje(e){
-    const mensaje={
-        author: document.getElementById("username").value, 
-        text: document.getElementById("texto").value
-    }
-    
-    socket.emit("new-message", mensaje)
-    console.log(mensaje);
-    return false
-}
-//okey
-
-
-let user;
-let chatBox = document.getElementById("chatBox");
-
-Swal.fire({
-    title:"Identificate flaco",
-    input:"text" ,
-    text: "Ingresa tu nombre para identificarte en el chat",
-    inputValidator: (value) => {
-        return !value && "necesitas escribir un nombre de usuario para continuar!!!!"
-    },
-    allowOutsideClick:false
-
-}).then(result => {
-    user=result.value
 })
 
 
-chatBox.addEventListener("keyup",evt=>{
-    if (evt.key==="Enter") {
-        if (chatBox.value.trim().length>0) {
-            socket.emit("message",{user:user,message:chatBox.value})
-            chatBox.value="";
-            
-        }
-    }
-})
-//socket lsiteners 
-socket.on("messageLogs", data=>{
-    let log= document.getElementById("messageLogs")
-    let messages = ""
-    data.forEach(message => {
-        messages= messages+`${message.user} : ${message.message}</br>`
-    });
-    log.innerHTML=messages;
+
+
+formProduct.addEventListener('submit', e => {
+    e.preventDefault();
+
+    socket.emit('addProduct', {
+        title: title.value,
+        description: description.value,
+        code: code.value,
+        price: price.value,
+        stock: stock.value,
+        category: category.value,
+        thumbnails: thumbnails.value
+    })
+    formProduct.reset();
+    alert('El producto ha sido agregado correctamente');
+
 })

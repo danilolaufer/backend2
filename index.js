@@ -1,37 +1,44 @@
 const express = require("express")
-const app = express()
+const Database = require("./dao/db.js")
+const Product = require("./dao/models/models.js")
+const PORT = 8080 || process.env.PORT
+const app = express();
 const cartsRouter = require("./routes/cart.route");
 const productRouter = require("./routes/product.route");
-const PORT = 8080 || process.env.PORT
-const routesProducts = require ("./routes/products")
-const routesCarts = require ("./routes/carts")
+const routesProducts = require ("./routes/products");
+const routesCarts = require ("./routes/carts");
 const path = require("path");
 const indexRouter = require("./routes/index.router.js");
-const  realTimeRouter = require("./routes/realTimeProducts.views.js");
-const  homeRouter = require ("./routes/home.views.js");
+const realTimeProductsRouter = require("./routes/realTimeProducts.views.js");
+const homeRouter = require ("./routes/home.views.js");
 const routerUsers= require("./routes/users")
-const handlebars = require("express-handlebars")
+const handlebars = require("express-handlebars");
 const multer = require("multer");
 const upload = multer({dest: "uploads/"})
 //Server, ProductManager
 const ProductManager = require ("./controllers/productManager.js");
 const productManager = new ProductManager("db/products.json")
 
+app.use( function(req, res, next){
+    console.log("Time: ", Date.now());
+    next()
+})
+
+
 //API
 app.use("/api", indexRouter)
 app.use('/', homeRouter)
-app.use('/realtimeproducts', realTimeRouter)
+app.use('/realtimeproducts', realTimeProductsRouter)
 
-//Http import
+// //Http import
 const http = require ("http");
 const server = http.createServer(app);
 
-//Socket
+// Socket
 const { Server } = require("socket.io");
 const io = new Server(server);
 
 app.engine("handlebars", handlebars.engine())
-app.set("view engine", "handlebars")
 app.set("views", __dirname+"/views")
 
 
@@ -47,10 +54,35 @@ app.post("/upload", upload.single("image"), (req, res) => {
     // y luego enviar la respuesta adecuada al cliente
     res.send("Imagen recibida correctamente");
   });
-
-
+app.get("/", (req, res)=>{
+    Product.find({})
+    .then(pr =>{
+        res.status(200).send({
+            msg:"todos los productos",
+            data:pr
+    })
+    .catch(err => {
+        res.status(500).send({
+            msg:"Erro al obtener productos",
+            data:pr
+        })
+    });
+    })
+})
+app.post("/saveProduct", (req, res)=>{
+    let newPr=req.body
+    let product = new Product(newPr)
+    product.save()
+    .then(pr =>{
+        res.status(201).send({
+            msg:"Producto guardado",
+            data:pr
+    })
+    .catch(err => console.log(err));
+    })
+})
 //PUBLIC
-app.use(express.static(__dirname+"/public"))
+app.use(express.static(path.join(__dirname, "public")));
 
 let messages = []  //si
 
@@ -71,13 +103,13 @@ io.on("connection", (socket)=>{
     })
     socket.on('addProduct', async (data) => {
         const added = await productManager.addProduct(data)
-        socketServer.emit('allProducts', await productManager.getProducts())
+        io.emit('allProducts', await productManager.getProducts())
     })
 })
 
 //ROUTES
-// app.use("/products",routesProducts)
-// app.use("/carts",routesCarts) 
+app.use("/products",routesProducts)
+app.use("/carts",routesCarts) 
 app.use("/users", routerUsers)
 app.use("/carts", cartsRouter);
 app.use("/products", productRouter);
@@ -157,15 +189,16 @@ app.get("/testHand", ( req, res )=>{
     res.render("users",{
         user:user,
         IsAdmin: user.role === "admin",
-        products: arrayPr // sera verdadero o falso
+        products: arrayPr
     })
     
 })
 
 
 
-server.listen(PORT, ()=>{
-    console.log("funka o no funka", PORT);
+app.listen(PORT, ()=>{
+    console.log("running on port 8080");
+    Database.connect()
 });
 
 
