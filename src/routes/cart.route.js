@@ -1,9 +1,11 @@
 const { Router } = require("express");
 
 const cartsRouter = Router();
+// const { CartManager } = require("../controllers/cartManager");
+// const cartManager = new CartManager("src/db/carts.json");
 
-const { CartManager } = require("../controllers/cartManager");
-const cartManager = new CartManager("src/db/carts.json");
+const { CartManagerMongo}  = require("../dao/managerMongo/cartManager")
+const cartManager = new CartManagerMongo();
 
 cartsRouter.post("/", async (req, res) => {
   try {
@@ -88,6 +90,40 @@ cartsRouter.delete("/:cid", async (req, res) => {
   }
 });
 
+cartsRouter.delete('/:cartId/products/:productId', async (request, response) => {
+  const { cartId, productId } = request.params;
+  const cart = await cartManager.deleteProductInCart(cartId, productId);
+  if (cart) {
+      response.json({ message: 'El producto se ha eliminado del carrito exitosamente.', cart: cart })
+  } else {
+      response.json({ message: 'El producto no ha podido ser eliminado al carrito.' })
+  }
+});
+cartsRouter.put('/:cartId', async (request, response) => {
+  const { cartId } = request.params;
+  const products = request.body;
+  const cart = await cartManager.replaceProductsInCart(cartId, products);
+  if (cart) {
+      response.json({ message: 'Se han actualizado los productos del carrito exitosamente.', cart: cart })
+  } else {
+      response.json({ message: 'No se han podido actualizar los productos del carrito.' })
+  }
+});
+
+cartsRouter.put('/:cartId/products/:productId', async (request, response) => {
+  const { cartId, productId } = request.params;
+  const { quantity } = request.body;
+  const cart = await cartManager.updateProductInCart(cartId, productId, quantity);
+  if (cart) {
+      response.json({ message: 'Se ha actualizado la cantidad del producto en el carrito exitosamente.', cart: cart })
+  } else {
+      response.json({ message: 'No se ha podido actualizar la cantidad del producto en el carrito.' })
+  }
+});
+
+
 module.exports = {
   cartsRouter,
 };
+
+

@@ -1,3 +1,4 @@
+const express = require("express")
 const fs = require("fs");
 const { uuidv4 } = require("uuid");
 
@@ -93,5 +94,9 @@ class ProductManager {
     }
   }
 }
-
-const productManager = new ProductManager("src/db/products.json");
+//No hay que instanciar la clase aca, se instancia en el archivo que se ocupe
+//const productManager = new ProductManager("src/db/products.json");
+//Exportar ProductManager 
+module.exports = {
+  ProductManager
+};

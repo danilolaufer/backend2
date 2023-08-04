@@ -1,12 +1,13 @@
+const express = require("express")
 const fs = require("fs");
 const { ProductManager } = require("./productManager");
 const uuid4 = require("uuid4");
 
 const productManager = new ProductManager("src/db/products.json");
 
-if (!fs.existsSync("db/carts")) {
-  fs.writeFileSync("db/carts", "[]");
-}
+// if (!fs.existsSync("../db/carts.json")) {
+//   fs.writeFileSync("../db/carts.json", "[]");
+// }
 
 class CartManager {
   constructor(path) {
@@ -16,6 +17,9 @@ class CartManager {
 
   async loadCarts() {
     try {
+      if (!fs.existsSync(this.path)) {
+          fs.writeFileSync(this.path, "[]");
+        }
       this.carts = JSON.parse(fs.readFileSync(this.path));
     } catch (error) {
       console.log("Error carts loaded", error);
@@ -99,5 +103,10 @@ class CartManager {
     }
   }
 }
+//No hay que instanciar la clase aca, se instancia en el archivo que se ocupe
+//const cart = new CartManager("carts.json");
 
-const cart = new CartManager("carts.json");
+//exportar CartManager
+module.exports = {
+  CartManager,
+};

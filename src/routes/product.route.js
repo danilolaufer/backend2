@@ -1,13 +1,17 @@
 const { Router } = require('express');
-const { ProductManager } = require('../src/controllers/productManager.js');
+const { ProductManager } = require('../controllers/productManager');//Corregir importacion
+const { ProductManagerMongo } = require('../dao/managerMongo/productManager')//importar manager de mongo
 
 const productRouter = Router();
 
-const productManager = new ProductManager("src/db/products.json");
+const productManager = new ProductManagerMongo();
+//Comentar el manager de fs porque usas el de mongo
+// const productManager = new ProductManager("src/db/products.json");
 
 productRouter.get('/', async (req, res) => {
   try {
-    const getProducts = await productManager.getProducts();
+    const query = req.query;//Agregar las query 
+    const getProducts = await productManager.getProducts(query);
     getProducts
       ? res.status(200).json({
           status: 'success',
@@ -80,4 +84,25 @@ productRouter.put('/:id', async (req, res) => {
     console.log(error);
   }
 });
+productRouter.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const productDeleted = await productManager.deleteProduct(id);
+    productDeleted === 'Product deleted successfully'
+      ? res.status(200).json({
+          status: 'success',
+          msg: productDeleted,
+        })
+      : res.status(404).json({
+          status: 'error',
+          msg: productDeleted,
+        });
+  } catch (error) {
+    console.log(error);
+  }
+});
 
+//Exportar productRouter
+module.exports = {
+  productRouter,
+};
